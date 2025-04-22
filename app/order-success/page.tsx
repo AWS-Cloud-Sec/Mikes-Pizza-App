@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Footer from '../components/Footer';
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentIntent = searchParams.get('payment_intent');
@@ -59,5 +59,17 @@ export default function OrderSuccessPage() {
       </div>
       <Footer />
     </>
+  );
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0069a7]"></div>
+      </div>
+    }>
+      <OrderSuccessContent />
+    </Suspense>
   );
 } 
