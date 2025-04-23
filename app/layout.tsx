@@ -13,8 +13,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Pizza App",
+  title: "Mike's",
   description: "Order food online from our Mike's Pizza",
+  icons: {
+    icon: '/images/pizza-slice-light.svg',
+  },
 };
 
 export default function RootLayout({
