@@ -48,15 +48,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((i) => i.id === item.id);
+      var updatedItems;
       if (existingItem) {
         // If item exists, just increase its quantity
-        var updatedItems = prevItems.map((i) =>
+        updatedItems = prevItems.map((i) =>
           i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
+        //Update cart quanity
+        localStorage.setItem("cart", JSON.stringify(updatedItems));
+        return updatedItems;
       }
       // If new item, add it with quantity 1
       updatedItems = [...prevItems, { ...item, quantity: 1 }];
-      sessionStorage.setItem("cart", JSON.stringify(updatedItems));
+      localStorage.setItem("cart", JSON.stringify(updatedItems));
 
       return updatedItems;
     });
