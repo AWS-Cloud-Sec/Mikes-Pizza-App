@@ -12,14 +12,14 @@ export default function MenuPage() {
   const [menuItems, setMenuItems] = useState([]);
 
   useEffect(() => {
-    const cachedMenu = localStorage.getItem("menu");
+    const cachedMenu = sessionStorage.getItem("menu");
     if (cachedMenu) {
       setMenuItems(JSON.parse(cachedMenu));
     } else {
       (async () => {
         const response = await getMenu();
         const menu = response.menu;
-        localStorage.setItem("menu", JSON.stringify(menu));
+        sessionStorage.setItem("menu", JSON.stringify(menu));
         setMenuItems(menu);
       })();
     }
