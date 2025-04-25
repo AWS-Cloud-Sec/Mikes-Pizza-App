@@ -1,7 +1,13 @@
 "use client";
 
 // Manages shopping cart current state
-import { createContext, useContext, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 // Properties of each item in cart
 interface CartItem {
@@ -15,12 +21,12 @@ interface CartItem {
 
 // What functions and data the cart provides
 interface CartContextType {
-  cartItems: CartItem[];           // List of items in cart
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;    // Add new item to cart
-  removeFromCart: (id: string) => void;                     // Remove item from cart
-  updateQuantity: (id: string, quantity: number) => void;   // Change how many of an item
-  getTotalItems: () => number;                              // Count total items in cart
-  clearCart: () => void;                                    // Empty the cart
+  cartItems: CartItem[]; // List of items in cart
+  addToCart: (item: Omit<CartItem, "quantity">) => void; // Add new item to cart
+  removeFromCart: (id: string) => void; // Remove item from cart
+  updateQuantity: (id: string, quantity: number) => void; // Change how many of an item
+  getTotalItems: () => number; // Count total items in cart
+  clearCart: () => void; // Empty the cart
 }
 
 // Create the cart context
@@ -30,14 +36,14 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   // Store cart items in state
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
+  useEffect(() => {});
   // Add item to cart or increase quantity if already in cart
-  const addToCart = (item: Omit<CartItem, 'quantity'>) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(i => i.id === item.id);
+  const addToCart = (item: Omit<CartItem, "quantity">) => {
+    setCartItems((prevItems) => {
+      const existingItem = prevItems.find((i) => i.id === item.id);
       if (existingItem) {
         // If item exists, just increase its quantity
-        return prevItems.map(i =>
+        return prevItems.map((i) =>
           i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
@@ -48,7 +54,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Remove an item from the cart
   const removeFromCart = (id: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
   // Change how many of an item is in the cart
@@ -59,10 +65,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     // Update the quantity of the item
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
+    setCartItems((prevItems) =>
+      prevItems.map((item) => (item.id === id ? { ...item, quantity } : item))
     );
   };
 
@@ -97,7 +101,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 export function useCart() {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
-} 
+}
