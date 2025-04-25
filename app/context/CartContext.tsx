@@ -1,5 +1,6 @@
 "use client";
 
+import constants from "constants";
 // Manages shopping cart current state
 import {
   createContext,
@@ -36,19 +37,28 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   // Store cart items in state
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  useEffect(() => {});
+  useEffect(() => {
+    const localCart = localStorage.getItem("cart");
+    if (localCart) {
+      setCartItems(JSON.parse(localCart));
+    }
+  }, []);
+
   // Add item to cart or increase quantity if already in cart
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((i) => i.id === item.id);
       if (existingItem) {
         // If item exists, just increase its quantity
-        return prevItems.map((i) =>
+        var updatedItems = prevItems.map((i) =>
           i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
       // If new item, add it with quantity 1
-      return [...prevItems, { ...item, quantity: 1 }];
+      updatedItems = [...prevItems, { ...item, quantity: 1 }];
+      sessionStorage.setItem("cart", JSON.stringify(updatedItems));
+
+      return updatedItems;
     });
   };
 
