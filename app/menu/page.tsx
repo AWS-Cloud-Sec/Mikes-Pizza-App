@@ -45,6 +45,8 @@ export default function MenuPage() {
                     selectedCategory === category
                       ? "bg-[#0069a7] text-white"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        ? "bg-[#0069a7] text-white"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                 >
                   {category}
@@ -61,6 +63,7 @@ export default function MenuPage() {
           </div>
         </div>
       </main>
+      <Footer />
       <Footer />
     </div>
   );
