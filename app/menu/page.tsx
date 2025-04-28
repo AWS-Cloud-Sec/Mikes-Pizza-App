@@ -7,10 +7,19 @@ import { getMenu } from "../api/Menu/menuAPI";
 
 const categories = ["All", "Pizza", "Sides", "Drinks", "Desserts"];
 
+//Removing this made type script very angry
+//Funny how I don't need this whenever running in dev mode
+interface MenuItemType {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  description: string;
+  image: string;
+}
 export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [menuItems, setMenuItems] = useState([]);
-
+  const [menuItems, setMenuItems] = useState<MenuItemType[]>([]);
   useEffect(() => {
     const cachedMenu = sessionStorage.getItem("menu");
     if (cachedMenu) {
@@ -45,8 +54,6 @@ export default function MenuPage() {
                     selectedCategory === category
                       ? "bg-[#0069a7] text-white"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        ? "bg-[#0069a7] text-white"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                 >
                   {category}
