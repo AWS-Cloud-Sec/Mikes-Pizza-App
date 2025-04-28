@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-<<<<<<< Updated upstream
-    "jsx": "react-jsx",
-=======
     "jsx": "preserve",
->>>>>>> Stashed changes
     "target": "es5",
     "lib": [
       "dom",
@@ -36,17 +32,11 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-<<<<<<< Updated upstream
     ".next/types/**/*.ts",
     "app/api/menu.jsx"
-  ],
-  "exclude": ["node_modules", "amplify"]
-=======
-    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "amplify"
   ]
->>>>>>> Stashed changes
 }
