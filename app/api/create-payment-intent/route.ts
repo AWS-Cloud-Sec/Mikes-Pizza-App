@@ -34,47 +34,37 @@ export async function POST(request: Request) {
 
     const { amount } = body;
 
-    // Validate amount
-    if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) {
-      return NextResponse.json(
-        { error: 'Invalid amount provided' },
-        { status: 400 }
-      );
-    }
-
-    // Create a payment intent
+    // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert dollars to cents
-      currency: "usd",
+      amount: Math.round(amount * 100), // Convert to cents
+      currency: 'usd',
       automatic_payment_methods: {
         enabled: true,
       },
     });
 
-    // Return success response
-    return NextResponse.json({
-      clientSecret: paymentIntent.client_secret,
-    });
-  } catch (error) {
-    // Log the error for debugging
-    console.error('Payment intent creation error:', {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      stripeError: error instanceof Stripe.errors.StripeError ? {
-        type: error.type,
-        code: error.code,
-        param: error.param,
-      } : undefined
-    });
-
-    // Return error response
     return NextResponse.json(
+      { clientSecret: paymentIntent.client_secret },
       {
-        error: 'Failed to create payment intent',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      }
+    );
+  } catch (error) {
+    console.error('Error creating payment intent:', error);
+    return NextResponse.json(
+      { error: 'Error creating payment intent' },
+      { 
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      }
     );
   }
 }
