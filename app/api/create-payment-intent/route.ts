@@ -14,6 +14,20 @@ export async function POST(request: Request) {
     // Get the order amount
     const { amount } = await request.json();
 
+    if (!amount || isNaN(amount)) {
+      return NextResponse.json(
+        { error: "Invalid amount provided" },
+        { status: 400 }
+      );
+    }
+
+    // Log the environment variables (without exposing sensitive data)
+    console.log("Stripe configuration check:", {
+      hasSecretKey: !!process.env.STRIPE_SECRET_KEY,
+      hasPublishableKey: !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      amount: amount
+    });
+
     // Create a payment intent, and prepare for payment
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert dollars to cents
@@ -28,9 +42,24 @@ export async function POST(request: Request) {
       clientSecret: paymentIntent.client_secret,
     });
   } catch (error) {
-    console.error("Error creating payment intent:", error);
+    // Enhanced error logging
+    console.error("Detailed error creating payment intent:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      stripeError: error instanceof Stripe.errors.StripeError ? {
+        type: error.type,
+        code: error.code,
+        param: error.param,
+        message: error.message
+      } : undefined
+    });
+
     return NextResponse.json(
-      { error: "Error creating payment intent" },
+      { 
+        error: "Error creating payment intent", 
+        details: error instanceof Error ? error.message : "Unknown error",
+        type: error instanceof Stripe.errors.StripeError ? error.type : undefined
+      },
       { status: 500 }
     );
   }
