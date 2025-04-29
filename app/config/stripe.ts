@@ -7,9 +7,27 @@ if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
 
 // Initialize Stripe with public key
 export const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  {
+    apiVersion: "2025-03-31.basil",
+  }
 );
 console.log(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+
+// Create payment request instance
+export const createPaymentRequest = (amount: number) => {
+  return {
+    country: 'US',
+    currency: 'usd',
+    total: {
+      label: 'Total',
+      amount: Math.round(amount * 100), // Convert to cents
+    },
+    requestPayerName: true,
+    requestPayerEmail: true,
+    requestPayerPhone: true,
+  };
+};
 
 // Proceed to Checkout to for payment
 export const createPaymentIntent = async (amount: number) => {

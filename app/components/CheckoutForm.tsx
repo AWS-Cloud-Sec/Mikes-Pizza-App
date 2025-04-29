@@ -1,19 +1,86 @@
 "use client";
 
 // Payment form logic
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
+import { useStripe, useElements, PaymentElement, PaymentRequestButtonElement } from '@stripe/react-stripe-js';
 import { useCart } from '../context/CartContext';
+import { createPaymentRequest } from '../config/stripe';
 
-export default function CheckoutForm() {
+interface CheckoutFormProps {
+  clientSecret: string;
+}
+
+export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
   // Get Stripe hooks and cart context
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
-  const { clearCart } = useCart();
+  const { clearCart, cartItems } = useCart();
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [paymentRequest, setPaymentRequest] = useState<any>(null);
+  const [canMakePayment, setCanMakePayment] = useState(false);
+
+  // Calculate total amount
+  const calculateTotal = () => {
+    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryFee = 5.00;
+    const tax = subtotal * 0.08;
+    return subtotal + deliveryFee + tax;
+  };
+
+  useEffect(() => {
+    if (!stripe || !elements) return;
+
+    const pr = stripe.paymentRequest(createPaymentRequest(calculateTotal()));
+
+    // Check if the Payment Request API is available
+    pr.canMakePayment().then(result => {
+      if (result) {
+        setPaymentRequest(pr);
+        setCanMakePayment(true);
+      }
+    });
+
+    pr.on('paymentmethod', async (ev) => {
+      setProcessing(true);
+      setError(null);
+
+      try {
+        const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
+          clientSecret,
+          { payment_method: ev.paymentMethod.id },
+          { handleActions: false }
+        );
+
+        if (confirmError) {
+          ev.complete('fail');
+          setError(confirmError.message || 'Payment failed');
+          setProcessing(false);
+          return;
+        }
+
+        ev.complete('success');
+
+        if (paymentIntent.status === 'requires_action') {
+          const { error } = await stripe.confirmCardPayment(clientSecret);
+          if (error) {
+            setError(error.message || 'Payment failed');
+            setProcessing(false);
+            return;
+          }
+        }
+
+        // Payment successful
+        clearCart();
+        router.push('/order-success');
+      } catch (err) {
+        setError('An unexpected error occurred');
+        setProcessing(false);
+      }
+    });
+  }, [stripe, elements, cartItems, clientSecret]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,7 +126,30 @@ export default function CheckoutForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Stripe's payment form */}
+      {canMakePayment && (
+        <div className="mb-6">
+          <PaymentRequestButtonElement
+            options={{
+              paymentRequest,
+              style: {
+                paymentRequestButton: {
+                  theme: 'dark',
+                  height: '48px',
+                },
+              },
+            }}
+          />
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or pay with card</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <PaymentElement />
       
       {/* Show any errors */}
