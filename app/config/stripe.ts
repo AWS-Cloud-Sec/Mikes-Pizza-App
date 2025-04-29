@@ -13,6 +13,8 @@ export const createPaymentIntent = async (amount: number) => {
       throw new Error("Invalid amount provided");
     }
 
+    console.log("Creating payment intent with amount:", amount);
+
     // Send the order amount to our Stripe server
     const response = await fetch("/api/create-payment-intent", {
       method: "POST",
@@ -22,15 +24,31 @@ export const createPaymentIntent = async (amount: number) => {
       body: JSON.stringify({ amount }),
     });
 
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch (e) {
+      console.error("Failed to parse error response:", e);
+      errorData = {};
+    }
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      console.error("Payment intent creation failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData.error,
+        details: errorData.details,
+        type: errorData.type
+      });
       throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    return data.clientSecret;
+    return errorData.clientSecret;
   } catch (error) {
-    console.error("Error creating payment intent:", error);
+    console.error("Error creating payment intent:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined
+    });
     throw error;
   }
 };
