@@ -1,16 +1,22 @@
 import { loadStripe } from "@stripe/stripe-js";
 
+// Validate publishable key
+if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+  throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not defined in environment variables');
+}
+
 // Initialize Stripe with public key
 export const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 );
 console.log(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 // Proceed to Checkout to for payment
 export const createPaymentIntent = async (amount: number) => {
   try {
-    if (!amount || isNaN(amount)) {
-      throw new Error("Invalid amount provided");
+    // Validate amount
+    if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) {
+      throw new Error('Invalid amount provided');
     }
 
     console.log("Creating payment intent with amount:", amount);
@@ -24,31 +30,33 @@ export const createPaymentIntent = async (amount: number) => {
       body: JSON.stringify({ amount }),
     });
 
-    let errorData;
+    // Parse response
+    let data;
     try {
-      errorData = await response.json();
+      data = await response.json();
     } catch (e) {
-      console.error("Failed to parse error response:", e);
-      errorData = {};
+      console.error('Failed to parse response:', e);
+      throw new Error('Invalid response from server');
     }
 
+    // Handle error response
     if (!response.ok) {
-      console.error("Payment intent creation failed:", {
+      console.error('Payment intent creation failed:', {
         status: response.status,
-        statusText: response.statusText,
-        error: errorData.error,
-        details: errorData.details,
-        type: errorData.type
+        error: data.error,
+        details: data.details
       });
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      throw new Error(data.error || `Payment failed (${response.status})`);
     }
 
-    return errorData.clientSecret;
+    // Return client secret
+    if (!data.clientSecret) {
+      throw new Error('No client secret in response');
+    }
+
+    return data.clientSecret;
   } catch (error) {
-    console.error("Error creating payment intent:", {
-      error: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : undefined
-    });
+    console.error('Error creating payment intent:', error);
     throw error;
   }
 };

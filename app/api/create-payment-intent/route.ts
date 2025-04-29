@@ -2,34 +2,49 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-console.log(process.env.STRIPE_SECRET_KEY);
+// Validate Stripe key
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('STRIPE_SECRET_KEY is not defined in environment variables');
+}
+
 // Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-03-31.basil",
 });
 
 // Requests a payment intent
 export async function POST(request: Request) {
   try {
-    // Log environment check 
-    console.log("Environment check:", {
-      hasStripeKey: !!process.env.STRIPE_SECRET_KEY,
-      stripeKeyLength: process.env.STRIPE_SECRET_KEY?.length,
-      stripeKeyPrefix: process.env.STRIPE_SECRET_KEY?.substring(0, 3)
-    });
-
-    // Get the order amount
-    const { amount } = await request.json();
-    console.log("Received amount:", amount);
-
-    if (!amount || isNaN(amount)) {
+    // Validate request
+    if (!request.headers.get('content-type')?.includes('application/json')) {
       return NextResponse.json(
-        { error: "Invalid amount provided" },
+        { error: 'Content-Type must be application/json' },
         { status: 400 }
       );
     }
 
-    // Create a payment intent, and prepare for payment
+    // Get the order amount
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
+
+    const { amount } = body;
+
+    // Validate amount
+    if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) {
+      return NextResponse.json(
+        { error: 'Invalid amount provided' },
+        { status: 400 }
+      );
+    }
+
+    // Create a payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert dollars to cents
       currency: "usd",
@@ -38,32 +53,28 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("Payment intent created successfully:", {
-      id: paymentIntent.id,
-      status: paymentIntent.status
-    });
-
-    // Send the secure payment secret code to frontend to start payment
+    // Return success response
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
     });
   } catch (error) {
-    console.error("Detailed error creating payment intent:", {
-      error: error instanceof Error ? error.message : "Unknown error",
+    // Log the error for debugging
+    console.error('Payment intent creation error:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       stripeError: error instanceof Stripe.errors.StripeError ? {
         type: error.type,
         code: error.code,
         param: error.param,
-        message: error.message
       } : undefined
     });
 
+    // Return error response
     return NextResponse.json(
-      { 
-        error: "Error creating payment intent", 
-        details: error instanceof Error ? error.message : "Unknown error",
-        type: error instanceof Stripe.errors.StripeError ? error.type : undefined
+      {
+        error: 'Failed to create payment intent',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
