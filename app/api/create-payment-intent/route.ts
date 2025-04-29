@@ -14,6 +14,13 @@ export async function POST(request: Request) {
     // Get the order amount
     const { amount } = await request.json();
 
+    if (!amount || isNaN(amount)) {
+      return NextResponse.json(
+        { error: "Invalid amount provided" },
+        { status: 400 }
+      );
+    }
+
     // Create a payment intent, and prepare for payment
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert dollars to cents
@@ -30,8 +37,20 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating payment intent:", error);
     return NextResponse.json(
-      { error: "Error creating payment intent" },
+      { error: "Error creating payment intent", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }
+}
+
+// Added handler for CORS
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }

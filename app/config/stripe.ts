@@ -1,6 +1,6 @@
 import { loadStripe } from "@stripe/stripe-js";
 
-// Initialize Stripe with  public key
+// Initialize Stripe with public key
 export const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
@@ -13,12 +13,6 @@ export const createPaymentIntent = async (amount: number) => {
       throw new Error("Invalid amount provided");
     }
 
-    // Log the configuration check
-    console.log("Stripe frontend configuration check:", {
-      hasPublishableKey: !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      amount: amount
-    });
-
     // Send the order amount to our Stripe server
     const response = await fetch("/api/create-payment-intent", {
       method: "POST",
@@ -28,27 +22,15 @@ export const createPaymentIntent = async (amount: number) => {
       body: JSON.stringify({ amount }),
     });
 
-    const data = await response.json();
-
-    // Throw an error if the response is not ok
     if (!response.ok) {
-      console.error("Payment intent creation failed:", {
-        status: response.status,
-        statusText: response.statusText,
-        error: data.error,
-        details: data.details,
-        type: data.type
-      });
-      throw new Error(data.error || "Failed to create payment intent");
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
     }
 
-    // Get the payment secret
+    const data = await response.json();
     return data.clientSecret;
   } catch (error) {
-    console.error("Error creating payment intent:", {
-      error: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : undefined
-    });
+    console.error("Error creating payment intent:", error);
     throw error;
   }
 };
