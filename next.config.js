@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   optimizeFonts: true,
+  webpack: (config) => {
+    config.cache = false; // <-- disable caching temporarily
+    return config;
+  },
   images: {
     remotePatterns: [
       {
@@ -18,6 +22,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "mikes-pizza-assets.s3.us-east-1.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "mikes-pizza-assets2.s3.us-east-1.amazonaws.com",
       },
     ],
   },
