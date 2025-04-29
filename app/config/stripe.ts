@@ -5,13 +5,8 @@ if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
   throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not defined in environment variables');
 }
 
-// Initialize Stripe with public key
-export const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-  {
-    apiVersion: "2025-03-31.basil",
-  }
-);
+// Initialize Stripe on the client side
+export const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 console.log(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 // Create payment request instance

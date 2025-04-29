@@ -86,7 +86,7 @@ export default function CheckoutPage() {
           {/* Payment form section */}
           <div className="bg-white p-6 rounded-lg shadow">
             <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <CheckoutForm clientSecret={clientSecret} />
+              <CheckoutForm />
             </Elements>
           </div>
           
