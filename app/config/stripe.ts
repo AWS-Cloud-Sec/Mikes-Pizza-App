@@ -39,6 +39,8 @@ export const createPaymentIntent = async (amount: number) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent": "Mikes-Pizzas-App",
       },
       body: JSON.stringify({ amount }),
     });
