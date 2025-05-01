@@ -1,12 +1,19 @@
 "use client";
 import { useState } from "react";
-import { signIn, confirmSignIn } from "aws-amplify/auth";
+import {
+  signIn,
+  confirmSignIn,
+  getCurrentUser,
+  AuthUser,
+} from "aws-amplify/auth";
 
 function useAuth() {
   const [userChallenge, setUserChallenge] = useState<any>("");
   const [requireNextStep, setRequireNextStep] = useState(false);
   const [error, setError] = useState("");
   const [requestParameters, setRequestParameters] = useState<string[]>([]);
+  const [currentUser, setCurrentUser] = useState<AuthUser>();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   async function login(formData: { [name: string]: string }) {
     try {
@@ -28,8 +35,21 @@ function useAuth() {
         setRequireNextStep(true);
         setUserChallenge(response);
       }
+      if (response.isSignedIn === true) {
+        const user = await getCurrentUser();
+        console.log(user);
+        setCurrentUser(user);
+        setIsLoggedIn(true);
+      }
       return response;
     } catch (error: any) {
+      if (error.message === "There is already a signed in user.") {
+        const user = await getCurrentUser();
+        console.log(user);
+        setCurrentUser(user);
+        setIsLoggedIn(true);
+      }
+      console.log(error);
       setError(error.message || "Failed to login");
     }
   }
@@ -64,6 +84,10 @@ function useAuth() {
     requireNextStep,
     requestParameters,
     error,
+    currentUser,
+    setCurrentUser,
+    isLoggedIn,
+    setIsLoggedIn,
   };
 }
 
