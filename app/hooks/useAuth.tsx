@@ -5,6 +5,7 @@ import {
   confirmSignIn,
   getCurrentUser,
   AuthUser,
+  signUp,
 } from "aws-amplify/auth";
 
 function useAuth() {
@@ -15,11 +16,25 @@ function useAuth() {
   const [currentUser, setCurrentUser] = useState<AuthUser>();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
+  async function handleSignUp(formData: { [name: string]: string }) {
+    const response = await signUp({
+      username: formData["username"],
+    });
+  }
+
   async function login(formData: { [name: string]: string }) {
     try {
       const response = await signIn({
         username: formData.username,
         password: formData.password,
+        options: {
+          userAttributes: {
+            email: formData.email,
+            given_name: formData.given_name,
+            family_name: formData.family_name,
+            address: formData.address,
+          },
+        },
       });
       if (
         "nextStep" in response &&
@@ -94,6 +109,7 @@ function useAuth() {
     setCurrentUser,
     isLoggedIn,
     setIsLoggedIn,
+    handleSignUp,
   };
 }
 
