@@ -72,6 +72,12 @@ function useAuth() {
           },
         });
         console.log("Result = ", result);
+        if (result.isSignedIn === true) {
+          setIsLoggedIn(true);
+          const user = await getCurrentUser();
+          setCurrentUser(user);
+        }
+
         return result;
       }
     } catch (error: any) {

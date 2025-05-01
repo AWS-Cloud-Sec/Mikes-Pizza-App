@@ -20,7 +20,7 @@ const LoginPage = () => {
     setIsLoggedIn,
   } = useUserContext();
   const [formData, setFormData] = useState<{ [name: string]: string }>({
-    userName: "",
+    username: "",
     password: "",
   });
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,6 +28,11 @@ const LoginPage = () => {
     [name: string]: string;
   }>({});
   useEffect(() => {
+    setCurrentUser(undefined);
+    setIsLoggedIn(false);
+    setFormData({ username: "", password: "" });
+    setConfirmPassword("");
+    setUserAttributes({});
     (async () => {
       try {
         const user = await getCurrentUser();
@@ -94,7 +99,7 @@ const LoginPage = () => {
           ) : !requireNextStep ? (
             <form
               onSubmit={(event) => {
-                handleChallengeEvent(event);
+                handleLogin(event);
               }}
               className="flex flex-col gap-4 w-full max-w-xs"
             >
@@ -102,7 +107,7 @@ const LoginPage = () => {
                 type="text"
                 placeholder="Username"
                 className="border p-2 rounded"
-                value={formData["user"]}
+                value={formData["username"]}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, username: e.target.value }))
                 }
@@ -183,13 +188,11 @@ const LoginPage = () => {
                 Confirm Password
               </button>
               {
-                <p className="text-red-500">
-                  {error}
-                  <p>
-                    Also missing attributes:
-                    {requestParameters}
-                  </p>
-                </p>
+                <>
+                  <p className="text-red-500">{error}</p>
+                  <p>Also missing attributes:</p>
+                  <p>{requestParameters}</p>
+                </>
               }
             </form>
           )}
