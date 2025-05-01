@@ -1,6 +1,5 @@
-import { Amplify } from "aws-amplify";
-
-const awsExports = {
+import type { ResourcesConfig } from "aws-amplify";
+const awsExports: ResourcesConfig = {
   Auth: {
     Cognito: {
       userPoolId: "us-east-1_WbPOW8DjF",
@@ -22,9 +21,6 @@ const awsExports = {
         username: false,
         email: true,
         phone: true,
-        name: true,
-        family_name: true,
-        address: true,
       },
     },
   },
