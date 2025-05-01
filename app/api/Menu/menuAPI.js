@@ -3,6 +3,9 @@ const getMenu = async () => {
     "https://na86ywpjdb.execute-api.us-east-1.amazonaws.com/test/menu",
     {
       method: "GET",
+      headers: {
+        "content-type": "application/json",
+      },
     }
   );
   const data = await menu.json();
