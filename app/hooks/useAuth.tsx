@@ -6,7 +6,9 @@ import {
   getCurrentUser,
   AuthUser,
   signUp,
+  confirmSignUp,
 } from "aws-amplify/auth";
+import { UserPoolIdentityProviderAmazon } from "aws-cdk-lib/aws-cognito";
 
 function useAuth() {
   const [userChallenge, setUserChallenge] = useState<any>("");
@@ -16,15 +18,26 @@ function useAuth() {
   const [currentUser, setCurrentUser] = useState<AuthUser>();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  async function handleSignUp(formData: { [name: string]: string }) {
-    const response = await signUp({
-      username: formData["username"],
-    });
-  }
-
-  async function login(formData: { [name: string]: string }) {
+  async function handleConfirmSignUp(
+    formData: { [name: string]: string },
+    confirmationCode: string
+  ) {
     try {
-      const response = await signIn({
+      console.log("Before response");
+      const response = await confirmSignUp({
+        username: formData.username,
+        confirmationCode: confirmationCode,
+      });
+      console.log("After response");
+      console.log(response);
+      return response;
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  }
+  async function handleSignUp(formData: { [name: string]: string }) {
+    try {
+      const response = await signUp({
         username: formData.username,
         password: formData.password,
         options: {
@@ -33,9 +46,40 @@ function useAuth() {
             given_name: formData.given_name,
             family_name: formData.family_name,
             address: formData.address,
+            phone_number: formData.phone_number,
           },
         },
       });
+
+      if (
+        response &&
+        response.isSignUpComplete == false &&
+        response.nextStep.signUpStep === "CONFIRM_SIGN_UP"
+      ) {
+        const {
+          destination = "",
+          deliveryMedium = "",
+          attributeName = "",
+        } = response.nextStep.codeDeliveryDetails;
+        setRequireNextStep(true);
+        setUserChallenge(response.nextStep.signUpStep);
+        setRequestParameters([destination, deliveryMedium, attributeName]);
+        return response;
+      }
+      return response;
+    } catch (error: any) {
+      setError(error.message);
+      console.log(error);
+    }
+  }
+
+  async function login(formData: { [name: string]: string }) {
+    try {
+      const response = await signIn({
+        username: formData.username,
+        password: formData.password,
+      });
+
       if (
         "nextStep" in response &&
         response.nextStep.signInStep ===
@@ -110,6 +154,8 @@ function useAuth() {
     isLoggedIn,
     setIsLoggedIn,
     handleSignUp,
+    userChallenge,
+    handleConfirmSignUp,
   };
 }
 
