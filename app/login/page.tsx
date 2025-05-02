@@ -91,9 +91,10 @@ const LoginPage = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
-        <div className="bg-gray-100">
-          <h1 className="text-2xl mb-6 color:">Login to Mike's Pizza</h1>
+      <div className="flex flex-col min-h-screen bg-gray-100">
+        {/* Main content centered */}
+        <main className="flex-grow flex flex-col items-center justify-center p-4">
+          <h1 className="text-2xl mb-6">Login to Mike's Pizza</h1>
           {isLoggedIn ? (
             "User is already logged in!"
           ) : !requireNextStep ? (
@@ -126,9 +127,6 @@ const LoginPage = () => {
               <button
                 type="submit"
                 className="bg-blue-600 text-white rounded p-2 hover:bg-blue-700"
-                onClick={(event) => {
-                  handleLogin(event);
-                }}
               >
                 Log In
               </button>
@@ -147,7 +145,7 @@ const LoginPage = () => {
                     password: event.target.value,
                   }))
                 }
-              ></input>
+              />
               <input
                 type="password"
                 placeholder="Confirm Password"
@@ -156,49 +154,43 @@ const LoginPage = () => {
                 onChange={(event) => {
                   setConfirmPassword(event.target.value);
                 }}
-              ></input>
+              />
               <div>
-                {formData["password"] == confirmPassword
+                {formData["password"] === confirmPassword
                   ? "Passwords match!"
                   : "Passwords do not match"}
               </div>
               <div>
-                {requestParameters &&
-                  requestParameters.length > 0 &&
-                  requestParameters.map((attribute) => (
-                    <input
-                      key={attribute}
-                      type="text"
-                      placeholder={attribute}
-                      value={userAttributes[attribute]}
-                      name={attribute}
-                      onChange={(event) => {
-                        handleUserAttributes(event);
-                      }}
-                      className="border p-2 rounded w-full mb-2"
-                    />
-                  ))}
+                {requestParameters?.map((attribute) => (
+                  <input
+                    key={attribute}
+                    type="text"
+                    placeholder={attribute}
+                    value={userAttributes[attribute]}
+                    name={attribute}
+                    onChange={(event) => handleUserAttributes(event)}
+                    className="border p-2 rounded w-full mb-2"
+                  />
+                ))}
               </div>
               <button
                 className="bg-blue-600 text-white rounded p-2 hover:bg-blue-700"
-                onClick={(event) => {
-                  handleChallengeEvent(event);
-                }}
+                onClick={(event) => handleChallengeEvent(event)}
               >
                 Confirm Password
               </button>
-              {
-                <>
-                  <p className="text-red-500">{error}</p>
-                  <p>Also missing attributes:</p>
-                  <p>{requestParameters}</p>
-                </>
-              }
+              <>
+                <p className="text-red-500">{error}</p>
+                <p>Also missing attributes:</p>
+                <p>{requestParameters?.join(", ")}</p>
+              </>
             </form>
           )}
-        </div>
+        </main>
+
+        {/* Footer stays pinned when content is short */}
+        <Footer />
       </div>
-      <Footer />
     </>
   );
 };

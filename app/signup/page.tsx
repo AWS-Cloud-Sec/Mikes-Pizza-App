@@ -74,7 +74,7 @@ const SignupPage: React.FC = () => {
     <>
       {!isLoggedIn ? (
         <div>
-          <div className="flex flex-col items-center pt-10 bg-gray-100 pb-10 min-h-screen">
+          <div className="flex flex-col items-center pt-10 bg-gray-100 pb-10 min-h-40%">
             <h1 className="text-2xl mb-6 p-5">Sign Up</h1>
             {!requireNextStep ? (
               <div>
