@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 // Properties of recommended items
 interface CustomerFavorite {
@@ -14,6 +15,61 @@ interface CustomerFavorite {
 	name: string;
 	price: number;
 	image: string;
+}
+
+export interface OrderItem {
+	name: string;
+	description?: string;
+	price: number;
+	quantity: number;
+	image: string;
+}
+
+export interface Order {
+	orderId: string;
+	estimatedDelivery: string;
+	orderPlaced: string;
+	status: 'confirmed' | 'preparing' | 'out-for-delivery' | 'delivered';
+	items: OrderItem[];
+	subtotal: number;
+	deliveryFee: number;
+	total: number;
+}
+
+interface OrderContextType {
+	orders: Order[];
+	addOrder: (order: Order) => void;
+	getCurrentOrder: () => Order | undefined;
+}
+
+const OrderContext = createContext<OrderContextType | undefined>(undefined);
+
+export function OrderProvider({ children }: { children: ReactNode }) {
+	const [orders, setOrders] = useState<Order[]>([]);
+
+	const addOrder = (order: Order) => {
+		setOrders((prevOrders) => [order, ...prevOrders]);
+		// Also save to localStorage
+		localStorage.setItem('orders', JSON.stringify([order, ...orders]));
+	};
+
+	const getCurrentOrder = () => {
+		return orders[0];
+	};
+
+	return (
+		<OrderContext.Provider value={{ orders, addOrder, getCurrentOrder }}>
+			{children}
+		</OrderContext.Provider>
+	);
+}
+
+export function useOrders() {
+	const context = useContext(OrderContext);
+	if (context === undefined) {
+		throw new Error('useOrders must be used within an OrderProvider');
+	}
+	return context;
 }
 
 export default function CartPage() {

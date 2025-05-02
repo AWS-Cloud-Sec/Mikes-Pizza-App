@@ -4,9 +4,10 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import { CartProvider } from "./context/CartContext";
 import { UserContextProvider } from "./context/userContext";
-import { Authenticator } from "@aws-amplify/ui-react";
+import { OrderProvider } from "./context/OrderContext";
 import { Amplify } from "aws-amplify";
 import awsExports from "./awsExports";
+
 Amplify.configure(awsExports);
 
 const inter = Inter({
@@ -41,10 +42,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <UserContextProvider>
-          <CartProvider>
-            <Navbar />
-            {children}
-          </CartProvider>
+          <OrderProvider>
+            <CartProvider>
+              <Navbar />
+              {children}
+            </CartProvider>
+          </OrderProvider>
         </UserContextProvider>
       </body>
     </html>
