@@ -87,14 +87,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/login"
-                  className="text-white hover:bg-[#0078bd] py-3 transition"
+                  className="text-white hover:bg-[#0078bd] px-4 py-2 rounded transition font-medium"
                   onClick={() => setIsOpen(false)}
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/signup"
-                  className="bg-white text-[#0069a7] px-4 py-2 rounded hover:bg-gray-100 transition font-medium text-center mt-3"
+                  className="bg-white text-[#0069a7] px-4 py-2 rounded hover:bg-gray-100 transition font-medium"
                   onClick={() => setIsOpen(false)}
                 >
                   Sign Up

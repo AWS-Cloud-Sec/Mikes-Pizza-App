@@ -1,7 +1,5 @@
 "use client";
 
-import constants from "constants";
-// Manages shopping cart current state
 import {
   createContext,
   useContext,
@@ -30,17 +28,25 @@ interface CartContextType {
   clearCart: () => void; // Empty the cart
 }
 
-// Create the cart context
+// Initializing cart context
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // Cart functionality
 export function CartProvider({ children }: { children: ReactNode }) {
   // Store cart items in state
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  // Load cart from localStorage on mount
   useEffect(() => {
     const localCart = localStorage.getItem("cart");
     if (localCart) {
-      setCartItems(JSON.parse(localCart));
+      try {
+        const parsedCart = JSON.parse(localCart);
+        setCartItems(parsedCart);
+      } catch (error) {
+        console.error("Error parsing cart from localStorage:", error);
+        localStorage.removeItem("cart");
+      }
     }
   }, []);
 
@@ -48,27 +54,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((i) => i.id === item.id);
-      var updatedItems;
+      let updatedItems;
       if (existingItem) {
         // If item exists, just increase its quantity
         updatedItems = prevItems.map((i) =>
           i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
-        //Update cart quanity
-        localStorage.setItem("cart", JSON.stringify(updatedItems));
-        return updatedItems;
+      } else {
+        // If new item, add it with quantity 1
+        updatedItems = [...prevItems, { ...item, quantity: 1 }];
       }
-      // If new item, add it with quantity 1
-      updatedItems = [...prevItems, { ...item, quantity: 1 }];
       localStorage.setItem("cart", JSON.stringify(updatedItems));
-
       return updatedItems;
     });
   };
 
   // Remove an item from the cart
   const removeFromCart = (id: string) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    setCartItems((prevItems) => {
+      const updatedItems = prevItems.filter((item) => item.id !== id);
+      localStorage.setItem("cart", JSON.stringify(updatedItems));
+      return updatedItems;
+    });
   };
 
   // Change how many of an item is in the cart
@@ -79,9 +86,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     // Update the quantity of the item
-    setCartItems((prevItems) =>
-      prevItems.map((item) => (item.id === id ? { ...item, quantity } : item))
-    );
+    setCartItems((prevItems) => {
+      const updatedItems = prevItems.map((item) =>
+        item.id === id ? { ...item, quantity } : item
+      );
+      localStorage.setItem("cart", JSON.stringify(updatedItems));
+      return updatedItems;
+    });
   };
 
   // Count total number of items in cart
@@ -92,6 +103,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Empty the entire cart
   const clearCart = () => {
     setCartItems([]);
+    localStorage.removeItem("cart");
+    console.log("Cart cleared - items:", [], "localStorage:", localStorage.getItem("cart"));
   };
 
   // Provide cart functions and data to the app

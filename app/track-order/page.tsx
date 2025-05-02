@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from 'react';
-import OrderProgress from '../components/OrderProgress';
+import { useOrders } from '../context/OrderContext';
 import OrderDetails from '../components/OrderDetails';
 import OrderHistory from '../components/OrderHistory';
 import Footer from '../components/Footer';
@@ -26,49 +25,45 @@ interface Order {
 }
 
 export default function TrackOrderPage() {
-	const [currentOrder] = useState<Order>({
-		orderId: '#12345',
-		estimatedDelivery: '7:30 PM',
-		orderPlaced: 'April 17, 2025 7:00 PM',
-		status: 'preparing',
-		items: [
-			{
-				name: 'Pepperoni Pizza',
-				description: 'Large, Extra Cheese',
-				price: 18.99,
-				quantity: 1,
-				image: '/images/pep.png'
-			},
-			{
-				name: 'Soft Drink',
-				description: 'Cola, 500ml',
-				price: 2.99,
-				quantity: 1,
-				image: '/images/fountain_drinks.jpg'
-			}
-		],
-		subtotal: 21.98,
-		deliveryFee: 3.00,
-		total: 24.98
-	});
+	const { orders, getCurrentOrder } = useOrders();
+	const currentOrder = getCurrentOrder();
+
+	console.log('TrackOrderPage: All orders:', orders);
+	console.log('TrackOrderPage: Current order:', currentOrder);
+
+	if (!currentOrder) {
+		console.log('TrackOrderPage: No current order found');
+		return (
+			<div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+				<div className="max-w-3xl mx-auto">
+					<div className="text-center">
+						<h1 className="text-3xl font-bold text-gray-900 mb-4">No Active Orders</h1>
+						<p className="text-gray-600">You don't have any active orders at the moment.</p>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
-		<>
+		<div className="min-h-screen bg-gray-50">
 			<div className="max-w-4xl mx-auto px-4 py-8">
-				<h1 className="text-3xl font-bold text-center mb-8">Track Your Order</h1>
+				<h1 className="text-3xl font-bold text-center mb-8">Your Orders</h1>
 				
-				<div className="bg-white rounded-lg shadow p-6">
+				<div className="bg-white rounded-lg shadow-lg p-6">
 					<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-						<div>
-							<p className="text-gray-600">Order {currentOrder.orderId}</p>
-							<p className="text-gray-600">Estimated Delivery: {currentOrder.estimatedDelivery}</p>
+						<div className="space-y-2">
+							<p className="text-gray-900 font-medium">Order {currentOrder.orderId}</p>
+							<div className="text-gray-600">
+								<p>Estimated Delivery Time:</p>
+								<p className="font-semibold text-[#0069a7]">{currentOrder.estimatedDelivery}</p>
+							</div>
 						</div>
-						<p className="text-gray-600">
-							Order Placed<br/>{currentOrder.orderPlaced}
-						</p>
+						<div className="text-right">
+							<p className="text-gray-600 font-medium">Order Placed</p>
+							<p className="text-gray-900">{currentOrder.orderPlaced}</p>
+						</div>
 					</div>
-
-					<OrderProgress status={currentOrder.status} />
 					
 					<OrderDetails 
 						items={currentOrder.items}
@@ -77,11 +72,11 @@ export default function TrackOrderPage() {
 						total={currentOrder.total}
 					/>
 
-					<OrderHistory />
+					<OrderHistory orders={orders} />
 				</div>
 			</div>
 			<Footer />
-		</>
+		</div>
 	);
 }
 
