@@ -65,7 +65,8 @@ const SignupPage: React.FC = () => {
     }
   }
 
-  async function handleOTP() {
+  async function handleOTP(event: React.FormEvent) {
+    event.preventDefault();
     const response = await handleConfirmSignUp(formData, confirmationCode);
   }
 
@@ -127,7 +128,11 @@ const SignupPage: React.FC = () => {
                       Confirm sign up. Check your {requestParameters[1]} at{" "}
                       {requestParameters[0]}
                     </h2>
-                    <form onSubmit={handleOTP}>
+                    <form
+                      onSubmit={(event) => {
+                        handleOTP(event);
+                      }}
+                    >
                       <input
                         placeholder="Enter your OTP"
                         className="border p-2 rounded w-[300px] pl-5"

@@ -28,8 +28,20 @@ function useAuth() {
         username: formData.username,
         confirmationCode: confirmationCode,
       });
-      console.log("After response");
-      console.log(response);
+
+      if (response.isSignUpComplete) {
+        //Sign in the user right after confirmation
+        const signInResponse = await signIn({
+          username: formData.username,
+          password: formData.password,
+        });
+
+        if (signInResponse.isSignedIn) {
+          const user = await getCurrentUser();
+          setCurrentUser(user); //Sets your user context
+          setIsLoggedIn(true);
+        }
+      }
       return response;
     } catch (error: any) {
       console.log(error.message);
