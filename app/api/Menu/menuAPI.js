@@ -1,22 +1,26 @@
 const getMenu = async () => {
-  const menu = await fetch(
-    "https://na86ywpjdb.execute-api.us-east-1.amazonaws.com/test/menu",
-    {
-      method: "GET",
-      headers: {
-        "content-type": "application/json",
-      },
-    }
-  );
+  const menu = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}menu`, {
+    method: "GET",
+    headers: {
+      "content-type": "application/json",
+    },
+  });
   const data = await menu.json();
   return data;
 };
 
 const postMenu = async (event) => {
+  const session = await fetchAuthSession();
+  const idToken = session.tokens?.idToken?.toString();
+
+  if (!idToken) {
+    throw new Error("User is not authenticated — ID token missing");
+  }
+
   const newItem = await fetch(
-    "https://na86ywpjdb.execute-api.us-east-1.amazonaws.com/test/menu",
+    `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}menu`,
     {
-      moethod: "POST",
+      method: "POST",
       body: {
         name: event.name,
         price: event.price,
