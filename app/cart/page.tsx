@@ -8,7 +8,6 @@ import Footer from "../components/Footer";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
 import { OrderProvider } from "@/app/context/OrderContext"; // ✅ NEW import
-import { postOrder } from "../api/Orders/ordersAPI";
 
 // Properties of recommended items
 interface CustomerFavorite {
@@ -58,17 +57,7 @@ export default function CartPage() {
   const deliveryFee = 5.0;
   const tax = subtotal * 0.08;
   const total = subtotal + deliveryFee + tax;
-  const handleOrder = async () => {
-    const response = await postOrder(cartItems, () => {
-      const subtotal = cartItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      );
-      const deliveryFee = 5.0;
-      const tax = subtotal * 0.08;
-      return subtotal + deliveryFee + tax;
-    });
-  };
+
   return (
     <OrderProvider>
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -159,10 +148,7 @@ export default function CartPage() {
                 </div>
               </div>
               <button
-                // onClick={() => router.push("/checkout")}
-                onClick={() => {
-                  handleOrder();
-                }}
+                onClick={() => router.push("/checkout")}
                 className="w-full bg-[#0069a7] text-white py-3 rounded mt-6 hover:bg-[#005286] transition-colors"
               >
                 Proceed to Checkout
