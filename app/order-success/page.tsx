@@ -1,63 +1,67 @@
 "use client";
 
-import { useEffect, Suspense, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import Footer from '../components/Footer';
-import { useOrders } from '../context/OrderContext';
-import { useCart } from '../context/CartContext';
+import { useEffect, Suspense, useState, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import Footer from "../components/Footer";
+import { useOrders } from "../context/OrderContext";
+import { useCart } from "../context/CartContext";
 
 function OrderSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const paymentIntent = searchParams.get('payment_intent');
-  const paymentIntentClientSecret = searchParams.get('payment_intent_client_secret');
-  const orderId = searchParams.get('order_id');
+  const paymentIntent = searchParams.get("payment_intent");
+  const paymentIntentClientSecret = searchParams.get(
+    "payment_intent_client_secret"
+  );
+  const orderId = searchParams.get("order_id");
   const { orders } = useOrders();
   const { clearCart } = useCart();
   const [isLoading, setIsLoading] = useState(true);
+  const hasCleared = useRef(false);
 
+  //Had toredouse effect as I need to insert into our db before you wipe the cart
   useEffect(() => {
     const verifyOrder = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         if (!paymentIntent || !paymentIntentClientSecret) {
-          console.log('Missing payment parameters');
-          router.push('/');
+          console.log("Missing payment parameters");
+          router.push("/");
           return;
         }
 
-        const orderExists = orders.some(order => order.orderId === orderId);
+        const orderExists = orders.some((order) => order.orderId === orderId);
         if (!orderExists) {
-          console.error('Order not found:', orderId);
-          console.log('Current orders:', orders);
+          console.error("Order not found:", orderId);
+          console.log("Current orders:", orders);
           setIsLoading(false);
           return;
         }
 
-        // Clear the cart when order is verified
-        clearCart();
-        console.log('Cart cleared on order success page');
+        if (!hasCleared.current) {
+          clearCart();
+          hasCleared.current = true;
+          console.log("Cart cleared on order success page");
+        }
 
         setIsLoading(false);
       } catch (error) {
-        console.error('Error verifying order:', error);
+        console.error("Error verifying order:", error);
         setIsLoading(false);
       }
     };
 
     verifyOrder();
-  }, [paymentIntent, paymentIntentClientSecret, orderId, orders, router, clearCart]);
-
-  // Also clear cart on component mount
-  useEffect(() => {
-    if (orderId && orders.some(order => order.orderId === orderId)) {
-      clearCart();
-      console.log('Cart cleared on success page mount');
-    }
-  }, [orderId, orders, clearCart]);
-
+  }, [
+    paymentIntent,
+    paymentIntentClientSecret,
+    orderId,
+    orders,
+    router,
+    clearCart,
+  ]);
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -66,13 +70,14 @@ function OrderSuccessContent() {
     );
   }
 
-  if (orderId && !orders.some(order => order.orderId === orderId)) {
+  if (orderId && !orders.some((order) => order.orderId === orderId)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Order Verification Failed</h1>
           <p className="text-gray-600 mb-8">
-            We couldn't find your order. Please contact support if this issue persists.
+            We couldn't find your order. Please contact support if this issue
+            persists.
           </p>
           <div className="space-x-4">
             <Link
@@ -108,9 +113,12 @@ function OrderSuccessContent() {
                 />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Order Confirmed!</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              Order Confirmed!
+            </h1>
             <p className="text-gray-600 text-lg mb-8">
-              Thank you for your order. Your payment has been processed successfully.
+              Thank you for your order. Your payment has been processed
+              successfully.
             </p>
             <div className="space-x-4">
               <Link
@@ -136,12 +144,14 @@ function OrderSuccessContent() {
 
 export default function OrderSuccessPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0069a7]"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0069a7]"></div>
+        </div>
+      }
+    >
       <OrderSuccessContent />
     </Suspense>
   );
-} 
+}
