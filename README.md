@@ -1,13 +1,9 @@
-## AWS Amplify Next.js (App Router) Starter Template
+## Overview
 
 A full-stack food ordering web application with Stripe payment integration, order tracking, cart functionality and order history for creating applications using Next.js (App Router) and AWS Amplify, emphasizing easy setup for authentication, menu navigation, ordering food, processing payments with StripeAPI, and the database on Railway.
 
 The backend for our food ordering app split tasks into smaller, secure backend services and microservices. The API Gateway acts as the entry point, routing requests to placing an order to the right service requested for Users on their accounts, orders for purchases, or menu for food items. Payments are handled safely by Stripe, while data is stored in Railway DB and S3 for images. Security tools like Guard Duty and IAM protect the system, and Lambda runs code without servers. After an order, SNS sends confirmations, and Postman tests everything.
 
-
-## Overview
-
-This template equips you with a foundational Next.js application integrated with AWS Amplify, streamlined for scalability and performance. It is ideal for developers looking to jumpstart their project with pre-configured AWS services like Cognito, AppSync, and Railway.
 
 ## Setup Instructions
 
@@ -56,7 +52,7 @@ npm run dev
 - **Order Tracking**: Track your order status, wiew past orders on the track order page., and estimated delivery time.
 - **Order History**: View past orders with itemized details.
 - **Responsive UI**: Desktop and mobile responsive.
-- **Error Handling**: User-friendly error and loading states.
+- **Error Handling**: Status error, logging, and loading states.
 
 Pizza Application UI: 
 
