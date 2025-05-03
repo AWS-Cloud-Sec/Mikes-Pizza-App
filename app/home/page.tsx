@@ -46,7 +46,7 @@ const popularPizzas: PizzaCard[] = [
 
 export default function HomePage() {
   const { addToCart } = useCart();
-  console.log(process.env.NEXT_PUBLIC_API_GATEWAY_URL);
+
   const handleAddToCart = (pizza: PizzaCard) => {
     addToCart({
       id: pizza.id,
