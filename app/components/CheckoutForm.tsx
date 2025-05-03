@@ -95,16 +95,12 @@ export default function CheckoutForm() {
 
     try {
       // First create the order
-      console.log("Creating order before payment...");
+      //console.log("Creating order before payment...");
       const order = await createOrder(cartItems);
-      console.log("Order created successfully:", order);
-      //Hello Haoo, gunnna insert my lambda function herre, dont mind meeeeeeeeee
-      const lambdaOrder = await postOrder(cartItems, order.total);
-      console.log(lambdaOrder);
+      //onsole.log(order);
+      //console.log("Order created successfully:", order);
 
-      // Clear cart before payment confirmation
-      clearCart();
-      console.log("Cart cleared before payment confirmation");
+      //console.log("Cart cleared before payment confirmation");
 
       // Then process the payment
       const { error: submitError } = await elements.submit();
@@ -114,16 +110,39 @@ export default function CheckoutForm() {
         return;
       }
 
-      const { error: confirmError } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/order-success?order_id=${order.orderId}`,
-        },
-      });
+      console.log("Submit Error:", submitError);
+
+      const { error: confirmError, paymentIntent } =
+        await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            //return_url: `${window.location.origin}/order-success?order_id=${order.orderId}`,
+          },
+          redirect: "if_required",
+        });
 
       if (confirmError) {
         setError(confirmError.message || "An error occurred");
         setProcessing(false);
+      }
+
+      if (paymentIntent && paymentIntent.status === "succeeded") {
+        // Wait for sucessful paymentIntent before redirecting
+        //Insert into our own DB
+        await postOrder(cartItems, order.total);
+
+        //Get search params needed for order-sucess
+        const redirectUrl = new URL(`${window.location.origin}/order-success`);
+        redirectUrl.searchParams.set("order_id", order.orderId);
+        redirectUrl.searchParams.set("payment_intent", paymentIntent.id);
+        redirectUrl.searchParams.set(
+          "payment_intent_client_secret",
+          paymentIntent.client_secret || ""
+        );
+        redirectUrl.searchParams.set("redirect_status", paymentIntent.status);
+
+        //Redirect
+        router.push(redirectUrl.toString());
       }
     } catch (err) {
       setError("An unexpected error occurred");
