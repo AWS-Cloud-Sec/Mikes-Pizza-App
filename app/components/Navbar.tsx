@@ -55,7 +55,7 @@ const Navbar = () => {
             <span className="hidden sm:block">Mike's Cheesy Pizzas</span>
             <span className="block sm:hidden">Mike's Pizza</span>
           </Link>
-          {currentUser ? <h2> Hello, {currentUser?.username}</h2> : ""}
+          {/* {currentUser ? <h2> Hello, {currentUser?.username}</h2> : ""} */}
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-6">
             <Link
