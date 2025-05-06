@@ -152,6 +152,8 @@ export default function CheckoutForm() {
     }
   };
 
+  console.log('Stripe URL:', process.env.NEXT_PUBLIC_API_STRIPE_URL);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Stripe's payment form */}
