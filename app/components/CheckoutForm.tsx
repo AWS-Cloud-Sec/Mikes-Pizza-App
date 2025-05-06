@@ -116,23 +116,25 @@ export default function CheckoutForm() {
         await stripe.confirmPayment({
           elements,
           confirmParams: {
-            //return_url: `${window.location.origin}/order-success?order_id=${order.orderId}`,
+            return_url: `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/order-success?order_id=${order.orderId}`
           },
-          redirect: "if_required",
+          redirect: "if_required" // Only redirect if the payment method if required
         });
 
       if (confirmError) {
         setError(confirmError.message || "An error occurred");
         setProcessing(false);
+        return;
       }
 
+      // If we get here and there's no redirect, the payment was successful
       if (paymentIntent && paymentIntent.status === "succeeded") {
-        // Wait for sucessful paymentIntent before redirecting
+        // Wait for successful paymentIntent before redirecting
         //Insert into our own DB
         await postOrder(cartItems, order.total);
 
-        //Get search params needed for order-sucess
-        const redirectUrl = new URL(`${window.location.origin}/order-success`);
+        //Get search params needed for order-success
+        const redirectUrl = new URL(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/order-success`);
         redirectUrl.searchParams.set("order_id", order.orderId);
         redirectUrl.searchParams.set("payment_intent", paymentIntent.id);
         redirectUrl.searchParams.set(
