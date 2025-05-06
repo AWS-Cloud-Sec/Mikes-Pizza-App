@@ -116,7 +116,7 @@ export default function CheckoutForm() {
         await stripe.confirmPayment({
           elements,
           confirmParams: {
-            return_url: `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/order-success?order_id=${order.orderId}`
+            return_url: `${process.env.NEXT_PUBLIC_API_STRIPE_URL}/order-success?order_id=${order.orderId}`
           },
           redirect: "if_required" // Only redirect if the payment method if required
         });
@@ -134,7 +134,7 @@ export default function CheckoutForm() {
         await postOrder(cartItems, order.total);
 
         //Get search params needed for order-success
-        const redirectUrl = new URL(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/order-success`);
+        const redirectUrl = new URL(`${process.env.NEXT_PUBLIC_API_STRIPE_URL}/order-success`);
         redirectUrl.searchParams.set("order_id", order.orderId);
         redirectUrl.searchParams.set("payment_intent", paymentIntent.id);
         redirectUrl.searchParams.set(
