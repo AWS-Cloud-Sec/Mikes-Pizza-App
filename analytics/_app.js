@@ -4,8 +4,11 @@ import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
+  const isProd = process.env.NODE_ENV === 'production';
 
   useEffect(() => {
+    if (!isProd) return;
+
     // Send initial pageview to Google Analytics
     window.gtag('config', 'G-B87G43NDYF', {
       page_path: window.location.pathname,
@@ -28,7 +31,7 @@ function MyApp({ Component, pageProps }) {
     return () => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
-  }, [router.events]);
+  }, [router.events, isProd]);
 
   return <Component {...pageProps} />;
 }
