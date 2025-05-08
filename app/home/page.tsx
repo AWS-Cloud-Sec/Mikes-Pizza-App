@@ -1,9 +1,10 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Footer from "../components/Footer";
 import { useCart } from "../context/CartContext";
+import { useSearchParams } from 'next/navigation';
 
 interface PizzaCard {
   id: string;
@@ -44,8 +45,9 @@ const popularPizzas: PizzaCard[] = [
   },
 ];
 
-export default function HomePage() {
+function HomeContent() {
   const { addToCart } = useCart();
+  const searchParams = useSearchParams();
 
   const handleAddToCart = (pizza: PizzaCard) => {
     addToCart({
@@ -386,5 +388,13 @@ export default function HomePage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
