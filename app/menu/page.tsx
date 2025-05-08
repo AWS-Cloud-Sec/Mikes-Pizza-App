@@ -71,7 +71,6 @@ export default function MenuPage() {
         </div>
       </main>
       <Footer />
-      <Footer />
     </div>
   );
 }
