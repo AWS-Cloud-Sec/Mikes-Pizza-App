@@ -113,22 +113,27 @@ export default function CheckoutForm() {
       }
 
       console.log("Submit Error:", submitError);
-
-      const { error: confirmError, paymentIntent } =
-        await stripe.confirmPayment({
-          elements,
-          confirmParams: {
-            //return_url: `${window.location.origin}/order-success?order_id=${order.orderId}`,
-          },
-          redirect: "if_required",
-        });
+      const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `https://googleanalytics.dz75xu0t4b888.amplifyapp.com?order_id=${order.orderId}`
+        },
+        redirect: "if_required"
+      });
 
       if (confirmError) {
+        // Track payment error
+        trackEvent('payment_error', {
+          error_message: confirmError.message,
+          order_id: order.orderId
+        });
         setError(confirmError.message || "An error occurred");
         setProcessing(false);
+        return;
       }
       // Wait for sucessful paymentIntent before redirecting
       //Insert into our own DB
+      // If we get here and there's no redirect, the payment was successful
       if (paymentIntent && paymentIntent.status === "succeeded") {
         // Track successful payment
         trackPayment(
@@ -152,10 +157,16 @@ export default function CheckoutForm() {
         });
 
         // Wait for successful paymentIntent before redirecting
-        await postOrder(cartItems, order.total);
+        await postOrder({
+          cart: cartItems,
+          subtotal: order.subtotal,
+          deliveryFee: order.deliveryFee,
+          estimatedDelivery: order.estimatedDelivery,
+          total: order.total
+        });
 
-        //Get search params needed for order-sucess
-        const redirectUrl = new URL(`${window.location.origin}/order-success`);
+        //Get search params needed for order-success
+        const redirectUrl = new URL(`https://googleanalytics.dz75xu0t4b888.amplifyapp.com/order-success`);
         redirectUrl.searchParams.set("order_id", order.orderId);
         redirectUrl.searchParams.set("payment_intent", paymentIntent.id);
         redirectUrl.searchParams.set(
