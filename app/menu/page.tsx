@@ -17,9 +17,11 @@ interface MenuItemType {
   description: string;
   image: string;
 }
-export default function MenuPage() {
+
+function MenuContent() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [menuItems, setMenuItems] = useState<MenuItemType[]>([]);
+
   useEffect(() => {
     const cachedMenu = sessionStorage.getItem("menu");
     if (cachedMenu) {
@@ -72,5 +74,11 @@ export default function MenuPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function MenuPage() {
+  return (
+    <MenuContent />
   );
 }

@@ -7,7 +7,7 @@ import { EmailEncoding } from "aws-cdk-lib/aws-ses-actions";
 import { Key } from "aws-cdk-lib/aws-kms";
 import { request } from "http";
 
-const SignupPage: React.FC = () => {
+export default function SignupPage() {
   const [formData, setFormData] = useState<{ [name: string]: string }>({
     username: "",
     password: "",
@@ -162,9 +162,6 @@ const SignupPage: React.FC = () => {
       ) : (
         <div>User logged in.</div>
       )}
-      ;
     </>
   );
-};
-
-export default SignupPage;
+}

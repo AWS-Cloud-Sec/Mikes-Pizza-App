@@ -1,10 +1,8 @@
 "use client";
-
-export const dynamic = 'force-dynamic';
-
 // Checkout process
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Elements } from "@stripe/react-stripe-js";
 import { useCart } from "../context/CartContext";
 import { stripePromise, createPaymentIntent } from "../config/stripe";
@@ -12,7 +10,7 @@ import CheckoutForm from "../components/CheckoutForm";
 import Footer from "../components/Footer";
 import { postOrder } from "../api/Orders/ordersAPI";
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   // Get cart items
   const { cartItems } = useCart();
   const router = useRouter();
@@ -164,5 +162,13 @@ export default function CheckoutPage() {
       </div>
       <Footer />
     </>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }

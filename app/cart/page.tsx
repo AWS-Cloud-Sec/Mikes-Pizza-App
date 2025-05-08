@@ -1,5 +1,4 @@
 "use client";
-
 // Shows items in cart and allows checkout
 import Link from "next/link";
 import { FaMinus, FaPlus, FaTrash } from "react-icons/fa";

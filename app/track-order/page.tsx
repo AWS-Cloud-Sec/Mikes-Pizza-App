@@ -1,12 +1,11 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
-
 import { useOrders } from "../context/OrderContext";
 import OrderDetails from "../components/OrderDetails";
 import OrderHistory from "../components/OrderHistory";
 import Footer from "../components/Footer";
 import { getOrders } from "../api/Orders/ordersAPI";
+
 interface OrderItem {
   name: string;
   description?: string;

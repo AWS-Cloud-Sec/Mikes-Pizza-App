@@ -7,7 +7,6 @@ import Footer from "../components/Footer";
 import { useOrders } from "../context/OrderContext";
 import { useCart } from "../context/CartContext";
 
-export const dynamic = 'force-dynamic';
 
 function OrderSuccessContent() {
   const router = useRouter();
