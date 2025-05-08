@@ -14,11 +14,22 @@ import { signOut } from "@aws-amplify/auth";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
   const { getTotalItems } = useCart();
   const totalItems = getTotalItems();
 
   const { isLoggedIn, setIsLoggedIn, currentUser, setCurrentUser } =
     useUserContext();
+
+  useEffect(() => {
+    if (currentUser) {
+      setShowNotification(true);
+      const timer = setTimeout(() => {
+        setShowNotification(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,7 +66,11 @@ const Navbar = () => {
             <span className="hidden sm:block">Mike's Cheesy Pizzas</span>
             <span className="block sm:hidden">Mike's Pizza</span>
           </Link>
-          {currentUser ? <h2> Hello, {currentUser?.username}</h2> : ""}
+          {showNotification && (
+            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300 ease-in-out">
+              Hello, {currentUser?.username}
+            </div>
+          )}
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-6">
             <Link

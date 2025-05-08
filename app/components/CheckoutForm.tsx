@@ -134,7 +134,7 @@ export default function CheckoutForm() {
         await postOrder(cartItems, order.total);
 
         //Get search params needed for order-success
-        const redirectUrl = new URL(`${process.env.NEXT_PUBLIC_API_STRIPE_URL}/order-success`);
+        const redirectUrl = new URL(`https://fixreturnurl.dz75xu0t4b888.amplifyapp.com/order-success`);
         redirectUrl.searchParams.set("order_id", order.orderId);
         redirectUrl.searchParams.set("payment_intent", paymentIntent.id);
         redirectUrl.searchParams.set(
