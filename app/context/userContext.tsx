@@ -12,9 +12,9 @@ const UserContext = createContext<UserContextType | null>(null);
 
 const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const auth = useAuth();
-  useEffect(() => {
-    Amplify.configure(awsExports); // ✅ only runs once on mount
 
+  useEffect(() => {
+    Amplify.configure(awsExports);
     //Try to get a user initially
     try {
       (async () => {

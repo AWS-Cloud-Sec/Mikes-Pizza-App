@@ -131,7 +131,13 @@ export default function CheckoutForm() {
       if (paymentIntent && paymentIntent.status === "succeeded") {
         // Wait for successful paymentIntent before redirecting
         //Insert into our own DB
-        await postOrder(cartItems, order.total);
+        await postOrder(
+          cartItems,
+          order.subtotal,
+          order.deliveryFee,
+          order.estimatedDelivery,
+          order.total
+        );
 
         //Get search params needed for order-success
         const redirectUrl = new URL(`https://fixreturnurl.dz75xu0t4b888.amplifyapp.com/order-success`);

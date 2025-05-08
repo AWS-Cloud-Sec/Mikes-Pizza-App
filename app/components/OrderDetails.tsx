@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from "next/image";
 
 interface OrderItem {
   name: string;
@@ -16,19 +16,24 @@ interface OrderDetailsProps {
 }
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(price);
 };
 
-export default function OrderDetails({ items, subtotal, deliveryFee, total }: OrderDetailsProps) {
+export default function OrderDetails({
+  items,
+  subtotal,
+  deliveryFee,
+  total,
+}: OrderDetailsProps) {
   return (
     <div className="bg-white">
       <h2 className="text-xl font-semibold mb-4">Order Details</h2>
-      
+
       <div className="space-y-4">
         {items.map((item, index) => (
           <div key={index} className="flex items-center justify-between py-2">
@@ -43,7 +48,9 @@ export default function OrderDetails({ items, subtotal, deliveryFee, total }: Or
                 />
               </div>
               <div>
-                <h3 className="font-medium">{item.name}</h3>
+                <h3 className="font-medium">
+                  {item.quantity} x {item.name}
+                </h3>
                 {item.description && (
                   <p className="text-sm text-gray-600">{item.description}</p>
                 )}
@@ -72,4 +79,4 @@ export default function OrderDetails({ items, subtotal, deliveryFee, total }: Or
       </div>
     </div>
   );
-} 
+}
