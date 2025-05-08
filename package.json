@@ -18,6 +18,8 @@
     "@stripe/react-stripe-js": "^3.6.0",
     "@stripe/stripe-js": "^7.2.0",
     "aws-amplify": "^6.14.4",
+    "axios": "^1.9.0",
+    "ga-measurement-protocol": "^4.0.1",
     "next": "^14.2.26",
     "react": "^18",
     "react-dom": "^18",
