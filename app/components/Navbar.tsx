@@ -67,8 +67,10 @@ const Navbar = () => {
             <span className="block sm:hidden">Mike's Pizza</span>
           </Link>
           {showNotification && (
-            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300 ease-in-out">
-              Hello, {currentUser?.username}
+            <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-white text-gray-800 px-6 py-3 rounded-xl shadow-2xl transition-all duration-300 ease-in-out border border-green-100 flex items-center space-x-2 animate-fade-in">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="font-medium">Welcome back,</span>
+              <span className="text-green-600 font-semibold">{currentUser?.username}</span>
             </div>
           )}
           {/* Desktop Navigation */}

@@ -1,14 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
-
+import { useRouter } from "next/navigation";
 import { getCurrentUser } from "aws-amplify/auth";
 import { useAuth } from "../hooks/useAuth";
-
-import Footer from "../components/Footer";
 import { useUserContext } from "../context/userContext";
 
 const LoginPage = () => {
-  //Custom hook to help message login
+  const router = useRouter();
   const {
     login,
     handleChallenge,
@@ -27,6 +25,7 @@ const LoginPage = () => {
   const [userAttributes, setUserAttributes] = useState<{
     [name: string]: string;
   }>({});
+
   useEffect(() => {
     setCurrentUser(undefined);
     setIsLoggedIn(false);
@@ -38,17 +37,14 @@ const LoginPage = () => {
         const user = await getCurrentUser();
         setCurrentUser(user);
         setIsLoggedIn(true);
+        router.push('/menu');
       } catch (error: any) {
         console.log(error.message);
       }
     })();
   }, []);
 
-  //handleLogin invokes signIn() to sign into cognito
-  //In the case that the user needs to do another step(MFA,new password fromtemp, etc.
-  //Resposne returns it back back in it's nextStep object
   async function handleLogin(event: React.FormEvent) {
-    //Prevents page from refreshing
     event.preventDefault();
     try {
       const response = await login(formData);
@@ -59,14 +55,14 @@ const LoginPage = () => {
         response.nextStep?.signInStep ===
           "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"
       ) {
-        //Clear password
         setFormData((prev) => ({ ...prev, password: "" }));
       }
       if (response?.isSignedIn === true) {
-        console.log("User logged in sucessfully");
+        console.log("User logged in successfully");
         const user = await getCurrentUser();
         setCurrentUser(user);
         setIsLoggedIn(true);
+        router.push('/menu');
       }
     } catch (error: any) {
       console.log(error.message || "Failed to login");
@@ -90,108 +86,103 @@ const LoginPage = () => {
   }
 
   return (
-    <>
-      <div className="flex flex-col min-h-screen bg-gray-100">
-        {/* Main content centered */}
-        <main className="flex-grow flex flex-col items-center justify-center p-4">
-          <h1 className="text-2xl mb-6">Login to Mike's Pizza</h1>
-          {isLoggedIn ? (
-            "User is already logged in!"
-          ) : !requireNextStep ? (
-            <form
-              onSubmit={(event) => {
-                handleLogin(event);
-              }}
-              className="flex flex-col gap-4 w-full max-w-xs"
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold text-center mb-6">Login to Mike's Pizza</h1>
+        {!requireNextStep ? (
+          <form
+            onSubmit={(event) => {
+              handleLogin(event);
+            }}
+            className="flex flex-col gap-4"
+          >
+            <input
+              type="text"
+              placeholder="Username"
+              className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData["username"]}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, username: e.target.value }))
+              }
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData["password"]}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, password: e.target.value }))
+              }
+              required
+            />
+            <button
+              type="submit"
+              className="bg-blue-600 text-white rounded p-2 hover:bg-blue-700 transition-colors"
             >
-              <input
-                type="text"
-                placeholder="Username"
-                className="border p-2 rounded"
-                value={formData["username"]}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, username: e.target.value }))
-                }
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                className="border p-2 rounded"
-                value={formData["password"]}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, password: e.target.value }))
-                }
-                required
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 text-white rounded p-2 hover:bg-blue-700"
-              >
-                Log In
-              </button>
-              {error && <p className="text-red-500">{error}</p>}
-            </form>
-          ) : (
-            <form className="flex flex-col gap-4 w-full max-w-xs">
-              <input
-                type="password"
-                placeholder="Password"
-                className="border p-2 rounded"
-                value={formData["password"]}
-                onChange={(event) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    password: event.target.value,
-                  }))
-                }
-              />
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                className="border p-2 rounded"
-                value={confirmPassword}
-                onChange={(event) => {
-                  setConfirmPassword(event.target.value);
-                }}
-              />
-              <div>
-                {formData["password"] === confirmPassword
-                  ? "Passwords match!"
-                  : "Passwords do not match"}
+              Log In
+            </button>
+            {error && <p className="text-red-500 text-center">{error}</p>}
+          </form>
+        ) : (
+          <form className="flex flex-col gap-4">
+            <input
+              type="password"
+              placeholder="Password"
+              className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData["password"]}
+              onChange={(event) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  password: event.target.value,
+                }))
+              }
+            />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={confirmPassword}
+              onChange={(event) => {
+                setConfirmPassword(event.target.value);
+              }}
+            />
+            <div className="text-center text-sm">
+              {formData["password"] === confirmPassword
+                ? "Passwords match!"
+                : "Passwords do not match"}
+            </div>
+            <div className="space-y-2">
+              {requestParameters?.map((attribute) => (
+                <input
+                  key={attribute}
+                  type="text"
+                  placeholder={attribute}
+                  value={userAttributes[attribute]}
+                  name={attribute}
+                  onChange={(event) => handleUserAttributes(event)}
+                  className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              ))}
+            </div>
+            <button
+              className="bg-blue-600 text-white rounded p-2 hover:bg-blue-700 transition-colors"
+              onClick={(event) => handleChallengeEvent(event)}
+            >
+              Confirm Password
+            </button>
+            {error && <p className="text-red-500 text-center">{error}</p>}
+            {requestParameters && requestParameters.length > 0 && (
+              <div className="text-center text-sm text-gray-600">
+                <p>Missing attributes:</p>
+                <p>{requestParameters.join(", ")}</p>
               </div>
-              <div>
-                {requestParameters?.map((attribute) => (
-                  <input
-                    key={attribute}
-                    type="text"
-                    placeholder={attribute}
-                    value={userAttributes[attribute]}
-                    name={attribute}
-                    onChange={(event) => handleUserAttributes(event)}
-                    className="border p-2 rounded w-full mb-2"
-                  />
-                ))}
-              </div>
-              <button
-                className="bg-blue-600 text-white rounded p-2 hover:bg-blue-700"
-                onClick={(event) => handleChallengeEvent(event)}
-              >
-                Confirm Password
-              </button>
-              <>
-                <p className="text-red-500">{error}</p>
-                <p>Also missing attributes:</p>
-                <p>{requestParameters?.join(", ")}</p>
-              </>
-            </form>
-          )}
-        </main>
-
-        {/* Footer stays pinned when content is short */}
-        <Footer />
+            )}
+          </form>
+        )}
       </div>
-    </>
+    </div>
   );
 };
+
 export default LoginPage;
