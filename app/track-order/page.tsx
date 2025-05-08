@@ -5,6 +5,10 @@ import OrderDetails from "../components/OrderDetails";
 import OrderHistory from "../components/OrderHistory";
 import Footer from "../components/Footer";
 import { getOrders } from "../api/Orders/ordersAPI";
+import { useUserContext } from "../context/userContext";
+import Link from "next/link";
+import { useEffect } from "react";
+
 interface OrderItem {
   name: string;
   description?: string;
@@ -26,23 +30,31 @@ interface Order {
 
 export default function TrackOrderPage() {
   const { orders, getCurrentOrder } = useOrders();
+  const { isLoggedIn } = useUserContext();
   const currentOrder = getCurrentOrder();
-
+  //const currentOrder = { orderid: 1 };
   console.log("TrackOrderPage: All orders:", orders);
-  console.log("TrackOrderPage: Current order:", currentOrder);
-
+  //console.log("TrackOrderPage: Current order:", currentOrder);
   if (!currentOrder) {
     console.log("TrackOrderPage: No current order found");
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              No Active Orders
-            </h1>
-            <p className="text-gray-600">
-              You don't have any active orders at the moment.
-            </p>
+            {isLoggedIn ? (
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                  No Active Orders
+                </h1>{" "}
+              </div>
+            ) : (
+              <div>
+                <p className="text-gray-600">Please Sign in.</p>
+                <Link className="text-3xl font-bold mt-6" href="/login">
+                  Sign in
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -58,7 +70,7 @@ export default function TrackOrderPage() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div className="space-y-2">
               <p className="text-gray-900 font-medium">
-                Order {currentOrder.orderId}
+                Order #{currentOrder.orderId}
               </p>
               <div className="text-gray-600">
                 <p>Estimated Delivery Time:</p>
