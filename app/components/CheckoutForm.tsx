@@ -116,7 +116,7 @@ export default function CheckoutForm() {
         await stripe.confirmPayment({
           elements,
           confirmParams: {
-            return_url: `https://fixreturnurl.dz75xu0t4b888.amplifyapp.com/order-success?order_id=${order.orderId}`
+            return_url: `https://main.dz75xu0t4b888.amplifyapp.com/order-success?order_id=${order.orderId}`
           },
           redirect: "if_required" // Only redirect if the payment method if required
         });
@@ -131,16 +131,16 @@ export default function CheckoutForm() {
       if (paymentIntent && paymentIntent.status === "succeeded") {
         // Wait for successful paymentIntent before redirecting
         //Insert into our own DB
-        await postOrder(
-          cartItems,
-          order.subtotal,
-          order.deliveryFee,
-          order.estimatedDelivery,
-          order.total
-        );
+        await postOrder({
+          cart: cartItems,
+          subtotal: order.subtotal,
+          deliveryFee: order.deliveryFee,
+          estimatedDelivery: order.estimatedDelivery,
+          total: order.total
+        });
 
         //Get search params needed for order-success
-        const redirectUrl = new URL(`https://fixreturnurl.dz75xu0t4b888.amplifyapp.com/order-success`);
+        const redirectUrl = new URL(`https://main.dz75xu0t4b888.amplifyapp.com/order-success`);
         redirectUrl.searchParams.set("order_id", order.orderId);
         redirectUrl.searchParams.set("payment_intent", paymentIntent.id);
         redirectUrl.searchParams.set(
@@ -158,7 +158,7 @@ export default function CheckoutForm() {
     }
   };
 
-  console.log('Stripe URL:', 'https://fixreturnurl.dz75xu0t4b888.amplifyapp.com');
+  // console.log('Stripe URL:', 'https://main.dz75xu0t4b888.amplifyapp.com');
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
