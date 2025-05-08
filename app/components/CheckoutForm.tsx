@@ -116,7 +116,7 @@ export default function CheckoutForm() {
         await stripe.confirmPayment({
           elements,
           confirmParams: {
-            return_url: `${process.env.NEXT_PUBLIC_API_STRIPE_URL}/order-success?order_id=${order.orderId}`
+            return_url: `https://fixreturnurl.dz75xu0t4b888.amplifyapp.com/order-success?order_id=${order.orderId}`
           },
           redirect: "if_required" // Only redirect if the payment method if required
         });
@@ -152,7 +152,7 @@ export default function CheckoutForm() {
     }
   };
 
-  console.log('Stripe URL:', process.env.NEXT_PUBLIC_API_STRIPE_URL);
+  console.log('Stripe URL:', 'https://fixreturnurl.dz75xu0t4b888.amplifyapp.com');
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
