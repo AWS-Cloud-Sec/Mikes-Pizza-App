@@ -11,6 +11,7 @@ import {
 import { useCart } from "../context/CartContext";
 import { useOrders, Order } from "../context/OrderContext";
 import { postOrder } from "../api/Orders/ordersAPI";
+import { trackPayment, trackEvent } from "../utils/analytics";
 
 interface CartItem {
   name: string;
@@ -92,6 +93,7 @@ export default function CheckoutForm() {
 
     setProcessing(true);
     setError(null);
+    let order: Order | undefined;
 
     try {
       // First create the order
@@ -125,10 +127,31 @@ export default function CheckoutForm() {
         setError(confirmError.message || "An error occurred");
         setProcessing(false);
       }
-
+      // Wait for sucessful paymentIntent before redirecting
+      //Insert into our own DB
       if (paymentIntent && paymentIntent.status === "succeeded") {
-        // Wait for sucessful paymentIntent before redirecting
-        //Insert into our own DB
+        // Track successful payment
+        trackPayment(
+          paymentIntent.id,
+          order.total,
+          'USD',
+          cartItems.map(item => ({
+            item_id: item.name,
+            item_name: item.name,
+            price: item.price,
+            quantity: item.quantity
+          }))
+        );
+
+        // Track order completion
+        trackEvent('order_complete', {
+          order_id: order.orderId,
+          total_value: order.total,
+          item_count: cartItems.length,
+          payment_method: 'stripe'
+        });
+
+        // Wait for successful paymentIntent before redirecting
         await postOrder(cartItems, order.total);
 
         //Get search params needed for order-sucess
@@ -145,6 +168,12 @@ export default function CheckoutForm() {
         router.push(redirectUrl.toString());
       }
     } catch (err) {
+      // Track payment error
+      trackEvent('payment_error', {
+        error_message: err instanceof Error ? err.message : 'Unknown error',
+        order_id: order?.orderId
+      });
+      
       setError("An unexpected error occurred");
       setProcessing(false);
     }

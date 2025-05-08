@@ -7,6 +7,7 @@ import { UserContextProvider } from "./context/userContext";
 import { OrderProvider } from "./context/OrderContext";
 import { Amplify } from "aws-amplify";
 import awsExports from "./awsExports";
+import AnalyticsWrapper from "./components/AnalyticsWrapper";
 
 Amplify.configure(awsExports);
 
@@ -44,8 +45,10 @@ export default function RootLayout({
         <UserContextProvider>
           <OrderProvider>
             <CartProvider>
-              <Navbar />
-              {children}
+              <AnalyticsWrapper>
+                <Navbar />
+                {children}
+              </AnalyticsWrapper>
             </CartProvider>
           </OrderProvider>
         </UserContextProvider>

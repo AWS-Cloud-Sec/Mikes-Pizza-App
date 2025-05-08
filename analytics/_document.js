@@ -19,7 +19,7 @@ class MyDocument extends Document {
                   'page_location': window.location.href,
                   'page_title': document.title,
                   'send_page_view': true,
-                  'cookie_domain': 'main.dz75xu0t4b888.amplifyapp.com',
+                  'cookie_domain': 'googleanalytics.dz75xu0t4b888.amplifyapp.com',
                   'cookie_flags': 'SameSite=None;Secure'
                 });
               `,

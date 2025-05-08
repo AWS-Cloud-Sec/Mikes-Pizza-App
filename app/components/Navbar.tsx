@@ -5,7 +5,6 @@ import { FaPizzaSlice, FaShoppingCart } from "react-icons/fa";
 import { useState, useEffect, useContext } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 import { useCart } from "../context/CartContext";
-import { getCurrentUser } from "@aws-amplify/auth";
 import { Amplify } from "aws-amplify";
 import { useUserContext } from "../context/userContext";
 import awsExports from "../awsExports";
@@ -14,11 +13,22 @@ import { signOut } from "@aws-amplify/auth";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
   const { getTotalItems } = useCart();
   const totalItems = getTotalItems();
 
   const { isLoggedIn, setIsLoggedIn, currentUser, setCurrentUser } =
     useUserContext();
+
+  useEffect(() => {
+    if (currentUser) {
+      setShowNotification(true);
+      const timer = setTimeout(() => {
+        setShowNotification(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,7 +65,13 @@ const Navbar = () => {
             <span className="hidden sm:block">Mike's Cheesy Pizzas</span>
             <span className="block sm:hidden">Mike's Pizza</span>
           </Link>
-          {/* {currentUser ? <h2> Hello, {currentUser?.username}</h2> : ""} */}
+          {showNotification && (
+            <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-white text-gray-800 px-6 py-3 rounded-xl shadow-2xl transition-all duration-300 ease-in-out border border-green-100 flex items-center space-x-2 animate-fade-in">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="font-medium">Welcome back,</span>
+              <span className="text-green-600 font-semibold">{currentUser?.username}</span>
+            </div>
+          )}
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-6">
             <Link
