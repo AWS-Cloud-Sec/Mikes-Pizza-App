@@ -129,7 +129,13 @@ export default function CheckoutForm() {
       if (paymentIntent && paymentIntent.status === "succeeded") {
         // Wait for sucessful paymentIntent before redirecting
         //Insert into our own DB
-        await postOrder(cartItems, order.total);
+        await postOrder(
+          cartItems,
+          order.subtotal,
+          order.deliveryFee,
+          order.estimatedDelivery,
+          order.total
+        );
 
         //Get search params needed for order-sucess
         const redirectUrl = new URL(`${window.location.origin}/order-success`);
